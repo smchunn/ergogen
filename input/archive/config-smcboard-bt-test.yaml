@@ -1,0 +1,241 @@
+units:
+  kx: cx
+  ky: cy
+  px: 2
+  py: 2
+  len: 70
+  arc_1_r: 50
+  arc_1_t: 70#(atan(2)* 180 / PI)
+  test: 2*arc_1_r*asin(len/(2*arc_1_r))
+  arc_2_r: 80
+  arc_2_t: 45.5
+points:
+  key:
+    padding: cy
+    tags: 
+      1u: true
+  zones:
+    matrix:
+      key.padding: ky
+      columns:
+        pinky:
+          key:
+            stagger: 0 ky
+            spread: kx
+            column_net: P8
+        ring:
+          key:
+            stagger: 0.9 ky
+            spread: kx
+            column_net: P7
+        middle:
+          key:
+            stagger: 0.3 ky
+            spread: kx
+            column_net: P6
+        index:
+          key:
+            stagger: -0.3 ky
+            spread: kx
+            column_net: P5
+        inner:
+          key:
+            stagger: -0.3 ky
+            spread: kx
+            column_net: P4
+      rows:
+        bottom:
+          row_net: P3
+        home:
+          row_net: P2
+        top:
+          row_net: P1
+    thumbfan:
+      anchor:
+        ref: matrix_inner_bottom
+        shift: [0.5 kx, -1.6 ky]
+      columns:
+        near:
+          key:
+            spread: kx
+            splay: -30
+            column_net: P6
+        home:
+          key:
+            spread: kx
+            column_net: P5
+      rows:
+        thumb:
+          row_net: P9
+outlines:
+  arc_1:
+    - what: circle
+      radius: arc_1_r
+    - what: rectangle
+      size: [2*arc_1_r, 2*arc_1_r]
+      adjust:
+        shift: [-arc_1_r, 0]
+      operation: subtract
+    - what: rectangle
+      size: [2*arc_1_r, 2*arc_1_r]
+      adjust:
+        shift: [arc_1_r, 0]
+        orient: -arc_1_t
+      operation: subtract 
+    - what: circle
+      radius: .7*arc_1_r
+      operation: subtract
+
+  arc_2:
+    - what: circle
+      radius: arc_2_r
+    - what: rectangle
+      size: [2*arc_2_r, 2*arc_2_r]
+      adjust:
+        shift: [-arc_2_r, 0]
+      operation: subtract
+    - what: rectangle
+      size: [2*arc_2_r, 2*arc_2_r]
+      adjust:
+        shift: [arc_2_r, 0]
+        orient: -arc_2_t
+      operation: subtract 
+    - what: circle
+      radius: .7*arc_2_r
+      operation: subtract
+
+  raw: 
+    - what: rectangle
+      size: [cx, 100]
+      bound: true
+      adjust:
+        shift: [-cx,0]
+      operation: subtract
+    - what: rectangle
+      where: true
+      size: [1cx + 2, 1cy]
+    - what: rectangle
+      where: /.*matrix.pinky.*/ 
+      size: [4cx , 1cy]
+      adjust:
+        shift: [2.5cx,0]
+    - what: rectangle
+      where: /.*thumbfan.near.*/ 
+      size: [45, 1cy]
+      adjust:
+        shift: [-cx,0]
+    - what: rectangle
+      size: [22, 64]
+      adjust:
+        ref: matrix_inner_bottom
+        shift: [20, -3]
+    - what: outline
+      name: arc_1
+      adjust:
+        ref: matrix_middle_home
+        shift: [-3.7, -21.5]
+        rotate: 58
+    - what: outline
+      name: arc_2
+      adjust:
+        ref: matrix_middle_home
+        shift: [1.3,-50.9]
+        rotate: 11.5
+  cutout:
+    - what: outline
+      name: raw
+      fillet: 2
+  keycap_outlines:
+    - what: rectangle
+      asym: left
+      where: true
+      size: [1cx - 0.5, 1cy - 0.5] # Choc keycaps are 17.5 x 16.5
+      bound: false  
+  preview:
+    [keycap_outlines]
+pcbs:
+  smcboard:
+    outlines:
+      board:
+        outline: cutout
+      keycaps:
+        outline: preview
+        layer: Eco1.User
+    footprints:
+      promicro:
+        what: promicro_pretty
+        adjust:
+          ref: matrix_inner_home
+          shift: [20, -6]
+          rotate: -90
+      b3u1000p:
+        what: b3u1000p
+        adjust:
+          ref: matrix_inner_home
+          shift: [-2, -29]
+          rotate: 0
+        params:
+          r1: RST  
+          r2: GND
+          reverse: true 
+      pcm12:
+        what: pcm12
+        adjust:
+          ref: matrix_inner_home
+          shift: [28.5, -32]
+          rotate: 90
+        params:
+          reverse: true 
+          from: pos  
+          to: RAW
+      bat:
+        what: bat
+        params: 
+          neg: GND
+        anchor:
+          ref: matrix_inner_home
+          shift: [12, -27]
+          rotate: 0
+      choc_hotswap:
+        what: choc
+        where: true
+        params:
+          from: =colrow
+          to: =column_net
+          keycaps: true
+          reverse: true
+          hotswap: true
+      # choc:
+      #   type: choc
+      #   anchor:
+      #     rotate: 180
+      #   nets:
+      #     from: =colrow
+      #     to: =column_net
+      #   params:
+      #       keycaps: true
+      #       reverse: true
+      diode:
+        what: diode
+        where: true
+        params:
+          # from: P3
+          # to: P4
+          from: =colrow
+          to: =row_net
+        adjust:
+          shift: [0, -4]
+      via1:
+        what: via
+        where: true
+        params:
+          net: =column_net
+        adjust:
+          shift: [0, 2.5]
+      via2:
+        where: true
+        what: via
+        params:
+          net: =colrow
+        adjust:
+          shift: [0, 3.75]
