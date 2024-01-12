@@ -1,0 +1,419 @@
+meta:
+  engine: 4.0.2
+  version: 1.O
+  author: smchunn
+  footprint: &switch_footprint "choc_v1_hotswap"
+  switch:
+    $extends: presets.choc_v1
+
+presets:
+  # These presets provide different layout options
+  # Select a preset in the `units` section below
+  # Note: The appropriate switch footprint will still need to be set in the `pcb` section
+  choc_v1:
+    # Key and keycap measures
+    kx: cx # spacing between key centers (X-axis)
+    ky: cy # spacing between key centers (Y-axis)
+    ks: 18.5 # horizontal space between columns (default: 19)
+    kp: 17.5 # vertical padding between keys (deafult: 19)
+    kcow: 13.8 # key cutout hole width (cherry, choc v2: 14, choc v1: 13.8)
+    kcoh: 13.8 # key cutout hole height (cherry, choc v2: 14, choc v1: 13.8)
+    keycw: 17.5 # keycap width (cherry: 18, choc: 17.5)
+    keych: 16.5 # keycap height (cherry: 18, choc: 16.5)
+    led_pos_x: 0 # Led X position relative to the switch center
+    led_pos_y: 4.7 # Led Y position relative to the switch center
+    led_rotation: 0 # Led rotation
+    vertical_underglow_shift: -kp + 7.8  # How much to shift underglow leds tied to keys
+    vertical_diode_shift: 1.5 # How much to shift to avoid overlap
+    horizontal_diode_shift: -0.5 kcow - 0.85
+    diode_rotation: 0 # Diode rotation
+    switch_rotation: 0 # Hotswap south, led north
+units:
+  # The following statements will make the content of the preset
+  # available in the units context
+  $extends: meta.switch
+
+  hand_rotation: 0
+
+  # Physical measures
+  screw_radius: 1.1 # M2 screws
+  screw_diameter: screw_radius * 2
+  spacer_radius: 2.15 # M2 standoffs
+  spacer_diameter: spacer_radius * 2
+  fillet_radius: 0.5
+  pwr_trace_width: 0.25
+  gnd_trace_width: 0.25
+  signal_trace_width: 0.15
+  via_size: 0.56 # JLCPCB min 0.56 | KiCad default 0.8
+  via_drill: 0.3 # JLCPCB min 0.3 | KiCad default 0.4
+
+  # Thumb splay
+  splay_thumb_middle: 15
+  splay_thumb_far: 15
+  angle: -15
+points:
+  zones:
+    matrix:
+      key:
+        padding: kp
+        spread: ks
+        tags: 
+          - key
+          - matrix_key
+      anchor:
+        shift: [150, -120]
+      columns:
+        pinky:
+          key.stagger: 0
+          key.col_net: C0
+          key.mirror.col_net: C9
+        ring:
+          key.stagger: 12 
+          key.col_net: C1
+          key.mirror.col_net: C8
+        middle:
+          key.stagger: 5
+          key.col_net: C2
+          key.mirror.col_net: C7
+        index:
+          key.stagger: -5
+          key.col_net: C3
+          key.mirror.col_net: C6
+        inner:
+          key.stagger: -5
+          key.col_net: C4
+          key.mirror.col_net: C5
+      rows:
+        bottom:
+          row_net: R2
+        home:
+          row_net: R1
+        top:
+          row_net: R0
+    thumb:
+      key:
+        padding: kp
+        spread: ks
+        stagger: 0
+        tags:
+          - key
+          - thumb_key
+      anchor:
+        ref: matrix_inner_bottom
+        shift: [-2, -21]
+      columns:
+        index:
+          key.splay: -10
+          key.col_net: C3
+          key.mirror.col_net: C6
+        inner:
+          key.splay: -15
+          key.shift: [2, 0]
+          key.col_net: C4
+          key.mirror.col_net: C5
+      rows:
+        extra:
+          row_net: R3
+
+    screw_pcb_outer_top:
+      key.tags:
+        - helper
+        - screw
+      anchor:
+        - ref: [matrix_ring_top]
+          shift: [0kx, -0.4ky]
+    screw_pcb_outer_bottom:
+      key.tags:
+        - helper
+        - screw
+      anchor:
+        - ref: [matrix_pinky_bottom]
+          shift: [0.5kx, -0.25ky]
+    screw_pcb_inner_top:
+      key.tags:
+        - helper
+        - screw
+      anchor:
+        - ref: [matrix_inner_top]
+          shift: [0kx, -0.4ky]
+    screw_pcb_inner_bottom:
+      key.tags:
+        - helper
+        - screw
+      anchor:
+        - ref: [thumb_index_extra]
+          shift: [0.5kx, 0.5ky]
+
+  rotate: angle
+  mirror: &mirror
+    ref: matrix_inner_top
+    shift: [0.5kx, 0.5ky]
+    distance: 21
+outlines:
+  _pcb:
+    - what: polygon
+      points:
+        - ref: matrix_pinky_bottom
+          shift: [-0.5ks, -0.5kp]
+        - ref: matrix_pinky_top
+          shift: [-0.5ks, 0.5kp]
+        - ref: matrix_ring_top
+          shift: [-0.5ks, 0.5kp]
+        - ref: matrix_middle_top
+          shift: [-0.5ks, 0.5kp]
+        - ref: matrix_middle_top
+          shift: [0.5ks, 0.5kp]
+        - ref: matrix_inner_top
+          shift: [0.5ks, 0.5kp]
+        # - ref: matrix_inner_top
+        #   shift: [0.5ks, 0.1kp]
+
+        # - ref: mirror_matrix_inner_top
+        #   shift: [0.5ks, 0.1kp]
+        - ref: mirror_matrix_inner_top
+          shift: [0.5ks, 0.5kp]
+        - ref: mirror_matrix_middle_top
+          shift: [0.5ks, 0.5kp]
+        - ref: mirror_matrix_middle_top
+          shift: [-0.5ks, 0.5kp]
+        - ref: mirror_matrix_ring_top
+          shift: [-0.5ks, 0.5kp]
+        - ref: mirror_matrix_pinky_top
+          shift: [-0.5ks, 0.5kp]
+        - ref: mirror_matrix_pinky_bottom
+          shift: [-0.5ks, -0.5kp]
+
+        - ref: mirror_matrix_pinky_bottom
+          shift: [2.2ks, -0.5kp]
+        - ref: mirror_thumb_index_extra
+          shift: [-0.5ks, -0.5kp]
+        - ref: mirror_thumb_index_extra
+          shift: [0.5ks, -0.5kp]
+        - ref: mirror_thumb_inner_extra
+          shift: [0.5ks, -0.5kp]
+        # - ref: mirror_matrix_inner_bottom
+        #   shift: [1.58ks, -0.95kp]
+
+        # - ref: matrix_inner_bottom
+        #   shift: [1.58ks, -0.95kp]
+        - ref: thumb_inner_extra
+          shift: [0.5ks, -0.5kp]
+        - ref: thumb_index_extra
+          shift: [0.5ks, -0.5kp]
+        - ref: thumb_index_extra
+          shift: [-0.5ks, -0.5kp]
+        - ref: matrix_pinky_bottom
+          shift: [2.2ks, -0.5kp]
+      fillet: 3
+
+  _case_edge:
+    - what: outline
+      name: _pcb
+      expand: 3
+      fillet: 3
+  _keycap_outlines:
+    - what: rectangle
+      fillet: 2
+      where: [key]
+      size: [keycw, keych]
+    - what: rectangle
+      fillet: 2
+      where: [key_1_5u]
+      size: [keycw*1.5, keych]
+  _switch_cutouts:
+    - what: rectangle
+      where: /key/
+      size: [kcow, kcoh]
+  _screws:
+    - what: circle
+      where: /screw_pcb/
+      radius: screw_radius
+  _spacers:
+    - what: circle
+      where: /screw_pcb/
+      radius: spacer_radius
+  _plate_outline:
+    - what: outline
+      name: _pcb
+      fillet: fillet_radius
+    - what: outline
+      name: _switch_cutouts
+      operation: subtract
+  plate:
+    - what: outline
+      name: _plate_outline
+    - what: outline
+      name: _screws
+      operation: subtract
+  preview:
+    - _pcb
+    - ^_keycap_outlines
+pcbs:
+  smcboard_mono:
+    outlines:
+      pcb:
+        outline: _pcb
+      keycaps:
+        outline: _keycap_outlines 
+        layer: Eco1.User
+      # NiceNanoV2
+    footprints:
+      mcu:
+        what: seeed_xiao
+        adjust:
+          aggregate.parts:
+            - ref: matrix_inner_top
+            - ref: mirror_matrix_inner_top
+          shift: [0, -4]
+          rotate: 0
+        params:
+          side: 'B'
+      # io expander
+      ioexp:
+        what: mcp23s08_ssop
+        adjust:
+          aggregate.parts:
+            - ref: matrix_inner_top
+            - ref: mirror_matrix_inner_top
+          shift: [-2, -20]
+          rotate: 90
+        params:
+          side: 'B'
+          SCK: P8
+          SI: P10
+          SO: P9
+          A1: GND
+          A0: GND
+          RST: VCC
+          CS: P7
+          VSS: GND
+          VDD: VCC
+      # Reset Button
+      reset:
+        what: b3u1000p
+        adjust:
+          aggregate.parts:
+            - ref: matrix_inner_top
+            - ref: mirror_matrix_inner_top
+          shift: [6, -20]
+          rotate: 90
+        params:
+          r1: RST
+          r2: GND
+      # Slider switch - Power
+      pcm12:
+        what: pcm12
+        adjust:
+          aggregate.parts:
+            - ref: matrix_inner_top
+            - ref: mirror_matrix_inner_top
+          shift: [-16.4, 8.6]
+          rotate: 149.2
+        params:
+          reverse: false
+          flip: true
+          front: false
+          from: pos
+          to: BATP
+      # Battery JST Connector
+      bat:
+        what: bat
+        params:
+          neg: BATN
+        adjust:
+          aggregate.parts:
+            - ref: matrix_inner_top
+            - ref: mirror_matrix_inner_top
+          shift: [-10, -17]
+          rotate: 90
+      # Switch FP
+      key_switches:
+        what: *switch_footprint
+        where: /key/
+        params:
+          reverse: false
+          hotswap: true
+          from: "{{column_net}}"
+          to: "{{colrow}}"
+          # The following parameters are specific to choc_v2_hotswap
+          # outer_pad_width_front: 1.6
+          # outer_pad_width_back: 1.6
+        adjust:
+          rotate: switch_rotation
+      diodes_b:
+        what: combo_diode
+        where: /key/
+        params:
+          from: "{{colrow}}"
+          to: "{{row_net}}"
+          include_tht: false
+          reversible: false
+          side: B
+        adjust:
+          shift: [horizontal_diode_shift,vertical_diode_shift]
+          rotate: 90 + diode_rotation
+      # Mounting Holes
+      holeLTL:
+        what: mountingholestandoff
+        adjust:
+          ref: [matrix_ring_top]
+          shift: [0kx, -0.4ky]
+      holeLBL:
+        what: mountingholestandoff
+        adjust:
+          ref: [matrix_pinky_bottom]
+          shift: [0.5kx, -0.25ky]
+      holeLTR:
+        what: mountingholestandoff
+        adjust:
+          ref: [matrix_inner_top]
+          shift: [0kx, -0.4ky]
+      holeLBR:
+        what: mountingholestandoff
+        adjust:
+          ref: [thumb_index_extra]
+          shift: [0.5kx, 0.5ky]
+      holeRTL:
+        what: mountingholestandoff
+        adjust:
+          ref: [mirror_matrix_ring_top]
+          shift: [0kx, -0.4ky]
+      holeRBL:
+        what: mountingholestandoff
+        adjust:
+          ref: [mirror_matrix_pinky_bottom]
+          shift: [0.5kx, -0.25ky]
+      holeRTR:
+        what: mountingholestandoff
+        adjust:
+          ref: [mirror_matrix_inner_top]
+          shift: [0kx, -0.4ky]
+      holeRBR:
+        what: mountingholestandoff
+        adjust:
+          ref: [mirror_thumb_index_extra]
+          shift: [0.5kx, 0.5ky]
+cases:
+  bottom:
+    - name: _case_edge
+      extrude: 2
+  _outerWall:
+    - name: _case_edge
+      extrude: 4
+  _innerWall:
+    - name: _pcb
+      extrude: 4
+  wall:
+    - what: case
+      name: _outerWall
+      operation: add
+    - what: case
+      name: _innerWall
+      operation: subtract
+  case:
+    - what: case
+      name: bottom
+      operation: add
+    - what: case
+      name: wall
+      operation: add

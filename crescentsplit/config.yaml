@@ -1,0 +1,388 @@
+meta:
+  engine: 4.0.0
+  version: 1.O
+  author: smchunn
+units:
+  kx: cx
+  ky: cy
+  px: kx + 2
+  py: ky + 2
+  screw: 1.5
+  standoff: 4.4
+points:
+  key:
+    padding: ky
+    spread: kx
+    tags:
+      1u: true
+  zones:
+    matrix:
+      # anchor:
+      # shift: [100, -100]
+      key.padding: ky
+      columns:
+        pinky:
+          key.stagger: 0 ky
+          key.col_net: P8
+        ring:
+          key.stagger: 0.7 ky
+          key.col_net: P7
+        middle:
+          key.stagger: 0.3 ky
+          key.col_net: P6
+        index:
+          key.stagger: -0.3 ky
+          key.col_net: P5
+        inner:
+          key.stagger: -0.3 ky
+          key.col_net: P4
+      rows:
+        bottom:
+          row_net: P3
+        home:
+          row_net: P2
+        top:
+          row_net: P1
+    thumbfan:
+      anchor:
+        ref: matrix_inner_bottom
+        shift: [-2, -21]
+      columns:
+        index:
+          key.splay: -10
+          key.col_net: P5
+        inner:
+          key.splay: -15
+          key.shift: [2, 0]
+          key.col_net: P4
+      rows:
+        thome:
+          row_net: P9
+  mirror:
+    ref: matrix_inner_home
+    distance: 5kx
+outlines:
+  left_pcb:
+    - what: polygon
+      points:
+        - ref: matrix_pinky_bottom
+          shift: [-0.5px, -0.5py]
+        - ref: matrix_pinky_top
+          shift: [-0.5px, 0.5py]
+        - ref: matrix_ring_top
+          shift: [-0.5px, 0.5py]
+        - ref: matrix_middle_top
+          shift: [-0.5px, 0.5py]
+        - ref: matrix_middle_top
+          shift: [0.5px, 0.5py]
+        - ref: matrix_inner_top
+          shift: [0.5px, 0.5py]
+        - ref: matrix_inner_top
+          shift: [0.5px, 0.1py]
+        - ref: matrix_inner_top
+          shift: [1.58px, 0.1py]
+        - ref: matrix_inner_bottom
+          shift: [1.58px, -0.95py]
+        - ref: thumbfan_inner_thome
+          shift: [0.5px, -0.5py]
+        - ref: thumbfan_index_thome
+          shift: [0.5px, -0.5py]
+        - ref: thumbfan_index_thome
+          shift: [-0.5px, -0.5py]
+        - ref: matrix_pinky_bottom
+          shift: [2.2px, -0.5py]
+      fillet: 3
+  right_pcb:
+    - what: polygon
+      points:
+        - ref: mirror_matrix_pinky_bottom
+          shift: [-0.5px, -0.5py]
+        - ref: mirror_matrix_pinky_top
+          shift: [-0.5px, 0.5py]
+        - ref: mirror_matrix_ring_top
+          shift: [-0.5px, 0.5py]
+        - ref: mirror_matrix_middle_top
+          shift: [-0.5px, 0.5py]
+        - ref: mirror_matrix_middle_top
+          shift: [0.5px, 0.5py]
+        - ref: mirror_matrix_inner_top
+          shift: [0.5px, 0.5py]
+        - ref: mirror_matrix_inner_top
+          shift: [0.5px, 0.1py]
+        - ref: mirror_matrix_inner_top
+          shift: [1.58px, 0.1py]
+        - ref: mirror_matrix_inner_bottom
+          shift: [1.58px, -0.95py]
+        - ref: mirror_thumbfan_inner_thome
+          shift: [0.5px, -0.5py]
+        - ref: mirror_thumbfan_index_thome
+          shift: [0.5px, -0.5py]
+        - ref: mirror_thumbfan_index_thome
+          shift: [-0.5px, -0.5py]
+        - ref: mirror_matrix_pinky_bottom
+          shift: [2.2px, -0.5py]
+      fillet: 3
+  screwhole:
+    - what: circle
+      radius: screw
+      adjust:
+        ref: [matrix_pinky_home]
+        shift: [0.5kx, -9]
+    - what: circle
+      radius: screw
+      adjust:
+        ref: [matrix_middle_top]
+        shift: [-0.5kx, -6]
+    - what: circle
+      radius: screw
+      adjust:
+        ref: [matrix_index_top]
+        shift: [0.5kx, -6]
+    - what: circle
+      radius: screw
+      adjust:
+        ref: [thumbfan_index_thome]
+        shift: [0.5kx, -3]
+  mounting:
+    - what: circle
+      radius: standoff
+      adjust:
+        ref: [matrix_pinky_home]
+        shift: [0.5kx, -9]
+    - what: circle
+      radius: standoff
+      adjust:
+        ref: [matrix_middle_top]
+        shift: [-0.5kx, -6]
+    - what: circle
+      radius: standoff
+      adjust:
+        ref: [matrix_index_top]
+        shift: [0.5kx, -6]
+    - what: circle
+      radius: standoff
+      adjust:
+        ref: [thumbfan_index_thome]
+        shift: [0.5kx, -3]
+  bat_conn_safezone:
+    - what: rectangle
+      adjust:
+        ref: matrix_inner_bottom
+        shift: [25.8 - 4, -6.3]
+      size: [12, 6]
+  bat_safezone:
+    - what: rectangle
+      adjust:
+        ref: matrix_middle_bottom
+        shift: [0.5kx, -3]
+      size: [60, 40]
+  usb_safezone:
+    - what: rectangle
+      adjust:
+        ref: matrix_inner_home
+        shift: [20.8, 20]
+      size: [12, 6]
+  left_keycap_outlines:
+    - what: rectangle
+      where: "-/mirror_.*/"
+      size: [1cx - 0.5, 1cy - 0.5] # Choc keycaps are 17.5 x 16.5
+      bound: false  
+  right_keycap_outlines:
+    - what: rectangle
+      where: "/mirror_.*/"
+      size: [1cx - 0.5, 1cy - 0.5] # Choc keycaps are 17.5 x 16.5
+      bound: false
+  plate_sockets:
+    - what: rectangle
+      where: "-/mirror_.*/"
+      asym: left
+      size: [13.8, 13.8]
+  preview_left:
+    - left_pcb
+    - ^left_keycap_outlines
+  preview_right:
+    - right_pcb
+    - ^right_keycap_outlines
+  outline_case:
+    - left_pcb
+    - ^mounting
+    #- ^screwhole
+    - ^bat_conn_safezone
+    - ^bat_safezone
+    - ^usb_safezone
+  plate:
+    - left_pcb
+    - -plate_sockets
+pcbs:
+  crescentsplit_left:
+    outlines:
+      board_left:
+        outline: left_pcb
+      keycaps:
+        outline: preview_left
+        layer: Eco1.User
+    # NiceNanoV2
+    footprints:
+      promicro:
+        what: promicro_pretty
+        adjust:
+          ref: matrix_inner_home
+          shift: [20.8, 2]
+          rotate: -90
+      # Reset Button
+      reset:
+        what: smc_reset
+        adjust:
+          ref: matrix_inner_bottom
+          shift: [29.7, 0]
+          rotate: -90
+        params:
+          from: RST
+          to: GND
+      # Slider switch - Power
+      pcm12:
+        what: pcm12
+        adjust:
+          ref: matrix_inner_bottom
+          shift: [29.7, -8]
+          rotate: 90
+        params:
+          reverse: false
+          flip: true
+          from: pos
+          to: RAW
+      # Battery JST Connector
+      bat:
+        what: bat
+        params:
+          neg: GND
+        adjust:
+          ref: matrix_inner_bottom
+          shift: [25.8, -6.3]
+          rotate: 0
+      # Switch FP
+      switch:
+        what: choc
+        where: "-/mirror_.*/"
+        params:
+          from: "{{colrow}}"
+          to: "{{col_net}}"
+          keycaps: true
+          reverse: false
+          hotswap: true
+      diode:
+        what: smc_diode
+        where: "-/mirror_.*/"
+        params:
+          from: "{{colrow}}"
+          to: "{{row_net}}"
+        adjust:
+          shift: [0, -4]
+          rotate: 180
+      # Mounting Holes
+      holeBottomLeft:
+        what: mountingholestandoff
+        adjust:
+          ref: [matrix_pinky_home]
+          shift: [0.5kx, -9]
+      holeTopMid:
+        what: mountingholestandoff
+        adjust:
+          ref: [matrix_middle_top]
+          shift: [-0.5kx, -6]
+      holeTopRight:
+        what: mountingholestandoff
+        adjust:
+          ref: [matrix_index_top]
+          shift: [0.5kx, -6]
+      holeBottom:
+        what: mountingholestandoff
+        adjust:
+          ref: [thumbfan_index_thome]
+          shift: [0.5kx, -3]
+  crescentsplit_right:
+    outlines:
+      board_left:
+        outline: right_pcb
+      keycaps:
+        outline: preview_right
+        layer: Eco1.User
+    # NiceNanoV2
+    footprints:
+      promicro:
+        what: promicro_pretty
+        adjust:
+          ref: mirror_matrix_inner_home
+          shift: [20.8, 2]
+          rotate: 90
+      # Reset Button
+      reset:
+        what: smc_reset
+        adjust:
+          ref: mirror_matrix_inner_bottom
+          shift: [29.7, 0]
+          rotate: -90
+        params:
+          from: RST
+          to: GND
+      # Slider switch - Power
+      pcm12:
+        what: pcm12
+        adjust:
+          ref: mirror_matrix_inner_bottom
+          shift: [29.7, -8]
+          rotate: 90
+        params:
+          reverse: false
+          flip: true
+          from: pos
+          to: RAW
+      # Battery JST Connector
+      bat:
+        what: bat
+        params:
+          neg: GND
+        adjust:
+          ref: mirror_matrix_inner_bottom
+          shift: [25.8, -6.3]
+          rotate: 0
+      # Switch FP
+      switch:
+        what: choc
+        where: "/mirror_.*/"
+        params:
+          from: "{{colrow}}"
+          to: "{{col_net}}"
+          keycaps: true
+          reverse: false
+          hotswap: true
+      diode:
+        what: smc_diode
+        where: "/mirror_.*/"
+        params:
+          from: "{{colrow}}"
+          to: "{{row_net}}"
+        adjust:
+          shift: [0, -4]
+          rotate: 180
+      # Mounting Holes
+      holeBottomLeft:
+        what: mountingholestandoff
+        adjust:
+          ref: [mirror_matrix_pinky_home]
+          shift: [0.5kx, -9]
+      holeTopMid:
+        what: mountingholestandoff
+        adjust:
+          ref: [mirror_matrix_middle_top]
+          shift: [-0.5kx, -6]
+      holeTopRight:
+        what: mountingholestandoff
+        adjust:
+          ref: [mirror_matrix_index_top]
+          shift: [0.5kx, -6]
+      holeBottom:
+        what: mountingholestandoff
+        adjust:
+          ref: [mirror_thumbfan_index_thome]
+          shift: [0.5kx, -3]

@@ -1,0 +1,187 @@
+units:
+  kx: cx
+  ky: cy
+  px: kx + 2
+  py: ky + 2
+  screw: 1.5
+  standoff: 2.5
+points:
+  key:
+    padding: ky + 2
+    spread: kx + 2
+    tags: 
+      1u: true
+  zones:
+    matrix:
+      # anchor:
+        # shift: [100, -100]
+      columns:
+        lpinky:
+          key.col_net: P8
+        lring:
+          key.col_net: P9
+        lmiddle:
+          key.col_net: P10
+        lindex:
+          key.col_net: P16
+        linner:
+          key.col_net: P14
+        rinner:
+          key.col_net: P15
+        rindex:
+          key.col_net: P18
+        rmiddle:
+          key.col_net: P19
+        rring:
+          key.col_net: P20
+        rpinky:
+          key.col_net: P21
+      rows:
+        mods: 
+          row_net: P4
+        bottom:
+          row_net: P5
+        home:
+          row_net: P6
+        top:
+          row_net: P7
+outlines:
+  pcb_edge:
+    - what: polygon
+      points:
+        - ref: matrix_lpinky_top
+          shift: [-0.5px, 0.5py]
+        - ref: matrix_rpinky_top
+          shift: [0.5px, 0.5py]
+        - ref: matrix_rpinky_mods
+          shift: [0.5px, -0.5py]
+        - ref: matrix_lpinky_mods
+          shift: [-0.5px, -0.5py]
+      fillet: 3
+  cutout:
+    - what: outline
+      name: pcb_edge
+  screwhole:
+    - what: circle
+      radius: screw
+      where:
+        ref: [matrix_lring_top]
+        shift: [0.5kx, -0.5ky]
+    - what: circle
+      radius: screw
+      where:
+        ref: [matrix_lring_bottom]
+        shift: [0.5kx, -0.5ky]
+    - what: circle
+      radius: screw
+      where:
+        ref: [matrix_rring_top]
+        shift: [-0.5kx, -0.5ky]
+    - what: circle
+      radius: screw
+      where:
+        ref: [matrix_rring_bottom]
+        shift: [-0.5kx, -0.5ky]
+  mounting:
+    - what: circle
+      radius: standoff
+      where:
+        ref: [matrix_lring_top]
+        shift: [0.5kx, -0.5ky]
+    - what: circle
+      radius: standoff
+      where:
+        ref: [matrix_lring_bottom]
+        shift: [0.5kx, -0.5ky]
+    - what: circle
+      radius: standoff
+      where:
+        ref: [matrix_rring_top]
+        shift: [-0.5kx, -0.5ky]
+    - what: circle
+      radius: standoff
+      where:
+        ref: [matrix_rring_bottom]
+        shift: [-0.5kx, -0.5ky]
+  slider_safezone:
+    - what: rectangle
+      where: 
+        ref: [matrix_lpinky_home]
+        shift: [33, -20]
+      size: [6, 9]
+  keycap_outlines:
+    - what: rectangle
+      asym: left
+      where: true
+      size: [1cx - 0.5, 1cy - 0.5] # Choc keycaps are 17.5 x 16.5
+      bound: false 
+  plate_sockets:
+    - what: rectangle
+      where: true
+      size: [13.8, 13.8]
+  preview:
+    - cutout
+    - ^keycap_outlines
+  preview_raw:
+    - pcb_edge
+    - ^keycap_outlines
+  outline_case:
+    - cutout
+    - ^mounting
+    - ^screwhole
+    - ^slider_safezone
+pcbs:
+  test_matrix:
+    outlines:
+      board:
+        outline: cutout
+      keycaps:
+        outline: preview
+        layer: Eco1.User
+    footprints:
+      choc:
+        what: choc_hs
+        where: true
+        params:
+          from: "{{row_net}}"
+          to: "{{col_net}}"
+          keycaps: true
+          diodes: true
+          route_internal: true
+          route_row: true
+          route_col: true
+          left: 'lpinky'
+          bottom: 'mods'
+          padding_x: px
+          padding_y: py
+          id: "{{colrow}}"
+      # diode:
+      #   what: smc_diode
+      #   where: true
+      #   params:
+      #     from: "{{colrow}}"
+      #     to: "{{row_net}}"
+      #   adjust:
+      #     shift: [0, -4]
+      #     rotate: 180
+      # Mounting Holes
+      # holeTopLeft:
+      #   what: mountinghole
+      #   where:
+      #     ref: [matrix_lring_top]
+      #     shift: [0.5kx, -0.5ky]
+      # holeTopMid:
+      #   what: mountinghole
+      #   where:
+      #     ref: [matrix_lring_bottom]
+      #     shift: [0.5kx, -0.5ky]
+      # holeTopRight:
+      #   what: mountinghole
+      #   where:
+      #     ref: [matrix_rring_top]
+      #     shift: [-0.5kx, -0.5ky]
+      # holeBottom:
+      #   what: mountinghole
+      #   where:
+      #     ref: [matrix_rring_bottom]
+      #     shift: [-0.5kx, -0.5ky]

@@ -1,0 +1,283 @@
+units:
+  kx: cx
+  ky: cy
+  px: kx + 2
+  py: ky + 2
+  screw: .8
+  standoff: 2
+points:
+  key:
+    padding: ky
+    spread: kx
+    tags: 
+      1u: true
+  zones:
+    matrix:
+      # anchor:
+        # shift: [100, -100]
+      key.padding: ky
+      columns:
+        pinky:
+          key.stagger: 0 ky
+          key.col_net: P8
+        ring:
+          key.stagger: 0.7 ky
+          key.col_net: P7
+        middle:
+          key.stagger: 0.3 ky
+          key.col_net: P6
+        index:
+          key.stagger: -0.3 ky
+          key.col_net: P5
+        inner:
+          key.stagger: -0.3 ky
+          key.col_net: P4
+      rows:
+        bottom:
+          row_net: P3
+        home:
+          row_net: P2
+        top:
+          row_net: P1
+    thumbfan:
+      anchor:
+        ref: matrix_inner_bottom
+        shift: [-0.1 kx, -1.2 ky]
+      columns:
+        index:
+          key.splay: -10
+          key.col_net: P5
+        inner:
+          key.splay: -15
+          key.shift: [0.1 kx, 0ky]
+          key.col_net: P4
+      rows:
+        thome:
+          row_net: P9
+outlines:
+  pcb_edge:
+    - what: polygon
+      points:
+        - ref: matrix_pinky_bottom
+          shift: [-0.5px, -0.5py]
+        - ref: matrix_pinky_top
+          shift: [-0.5px, 0.5py]
+        - ref: matrix_ring_top
+          shift: [-0.5px, 0.5py]
+        - ref: matrix_middle_top
+          shift: [-0.5px, 0.5py]
+        - ref: matrix_middle_top
+          shift: [0.5px, 0.5py]
+        - ref: matrix_inner_top
+          shift: [0.5px, 0.5py]
+        - ref: matrix_inner_top
+          shift: [0.5px, 0.1py]
+        - ref: matrix_inner_top
+          shift: [1.58px, 0.1py]
+        - ref: matrix_inner_bottom
+          shift: [1.58px, -0.95py]
+        - ref: thumbfan_inner_thome
+          shift: [0.5px, -0.5py]
+        - ref: thumbfan_index_thome
+          shift: [0.5px, -0.5py]
+        - ref: thumbfan_index_thome
+          shift: [-0.5px, -0.5py]
+        - ref: matrix_pinky_bottom
+          shift: [2.2px, -0.5py]
+      fillet: 3
+  cutout:
+    - what: outline
+      name: pcb_edge
+  screwhole:
+    - what: circle
+      radius: screw
+      where:
+        ref: [matrix_pinky_home]
+        shift: [0.5kx, -0.5ky]
+    - what: circle
+      radius: screw
+      where:
+        ref: [matrix_middle_top]
+        shift: [-0.5kx, -0.5ky]
+    - what: circle
+      radius: screw
+      where:
+        ref: [matrix_index_top]
+        shift: [0.5kx, -0.5ky]
+    - what: circle
+      radius: screw
+      where:
+        ref: [thumbfan_index_thome]
+        shift: [0.5kx, -0.2ky]
+  mounting:
+    - what: circle
+      radius: standoff
+      where:
+        ref: [matrix_pinky_home]
+        shift: [0.5kx, -0.5ky]
+    - what: circle
+      radius: standoff
+      where:
+        ref: [matrix_middle_top]
+        shift: [-0.5kx, -0.5ky]
+    - what: circle
+      radius: standoff
+      where:
+        ref: [matrix_index_top]
+        shift: [0.5kx, -0.5ky]
+    - what: circle
+      radius: standoff
+      where:
+        ref: [thumbfan_index_thome]
+        shift: [0.5kx, -0.2ky]
+  slider_safezone:
+    - what: rectangle
+      where: 
+        ref: [matrix_inner_home]
+        shift: [33, -20]
+      size: [6, 9]
+  keycap_outlines:
+    - what: rectangle
+      asym: left
+      where: true
+      size: [1cx - 0.5, 1cy - 0.5] # Choc keycaps are 17.5 x 16.5
+      bound: false 
+  plate_sockets:
+    - what: rectangle
+      where: true
+      size: [13.8, 13.8]
+  preview:
+    - cutout
+    - ^keycap_outlines
+  preview_raw:
+    - pcb_edge
+    - ^keycap_outlines
+  outline_case:
+    - cutout
+    - ^mounting
+    - ^screwhole
+    - ^slider_safezone
+pcbs:
+  smcboard:
+    outlines:
+      board:
+        outline: cutout
+      keycaps:
+        outline: preview
+        layer: Eco1.User
+    # NiceNanoV2
+    footprints:
+      promicro:
+        what: promicro_pretty
+        adjust:
+          ref: matrix_inner_home
+          shift: [20.8, 2]
+          rotate: -90
+      # Reset Button
+      b3u1000p:
+        what: b3u1000p
+        adjust:
+          ref: matrix_index_home
+          shift: [-2, -29]
+          rotate: 0
+        params:
+          r1: RST  
+          r2: GND
+          reverse: true 
+      # Slider switch - Power
+      pcm12:
+        what: pcm12
+        adjust:
+          ref: matrix_inner_home
+          shift: [29.2, -20]
+          rotate: 90
+        params:
+          reverse: true 
+          from: pos  
+          to: RAW
+      # Battery JST Connector
+      bat:
+        what: bat
+        params: 
+          neg: GND
+        adjust:
+          ref: matrix_inner_home
+          shift: [12, -19]
+          rotate: 0
+      # Switch FP
+      choc_hotswap:
+        what: choc
+        where: true
+        params:
+          from: "{{colrow}}"
+          to: "{{col_net}}"
+          keycaps: true
+          reverse: true
+          hotswap: true
+      diode:
+        what: smc_diode
+        where: true
+        params:
+          from: "{{colrow}}"
+          to: "{{row_net}}"
+        adjust:
+          shift: [0, -4]
+      via1:
+        what: via
+        where: true
+        params:
+          net: "{{col_net}}"
+        adjust:
+          shift: [0, 2.5]
+      via2:
+        what: via
+        where: true
+        params:
+          net: "{{colrow}}"
+        adjust:
+          shift: [0, 3.75]
+      # Mounting Holes
+      holeTopLeft:
+        what: mountinghole
+        where:
+          ref: [matrix_pinky_home]
+        adjust:
+          shift: [0.5kx, -0.5ky]
+      holeTopMid:
+        what: mountinghole
+        where:
+          ref: [matrix_middle_top]
+        adjust:
+          shift: [-0.5kx, -0.5ky]
+      holeTopRight:
+        what: mountinghole
+        where:
+          ref: [matrix_index_top]
+        adjust:
+          shift: [0.5kx, -0.5ky]
+      holeBottom:
+        what: mountinghole
+        where:
+          ref: [thumbfan_index_thome]
+        adjust:
+          shift: [0.5kx, -0.2ky]
+# cases:
+#   bottom:
+#     - name: pcb_edge
+#       extrude: 3
+#   _holes:
+#     - name: screwhole
+#       extrude: 4
+#   _standoffs:
+#     - name: mounting
+#       extrude: 4
+#   case:
+#     - what: case
+#       name: _standoffs
+#       operation: add
+#     - what: case
+#       name: _holes
+#       operation: subtract
+#     - what: case
+#       name: bottom
+#       operation: add
