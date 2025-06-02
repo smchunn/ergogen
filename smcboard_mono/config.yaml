@@ -2,7 +2,7 @@ meta:
   engine: 4.0.2
   version: 1.O
   author: smchunn
-  footprint: &switch_footprint "choc_v1_hotswap"
+  footprint: &switch_footprint "choc"
   switch:
     $extends: presets.choc_v1
 
@@ -24,9 +24,11 @@ presets:
     led_pos_y: 4.7 # Led Y position relative to the switch center
     led_rotation: 0 # Led rotation
     vertical_underglow_shift: -kp + 7.8  # How much to shift underglow leds tied to keys
-    vertical_diode_shift: 1.5 # How much to shift to avoid overlap
-    horizontal_diode_shift: -0.5 kcow - 0.85
+    vertical_diode_shift: 0 # How much to shift to avoid overlap
+    horizontal_diode_shift: -3.275 
     diode_rotation: 0 # Diode rotation
+    vertical_diode_via_shift: -3 # How much to shift to avoid overlap
+    horizontal_diode_via_shift: 0 
     switch_rotation: 0 # Hotswap south, led north
 units:
   # The following statements will make the content of the preset
@@ -38,7 +40,7 @@ units:
   # Physical measures
   screw_radius: 1.1 # M2 screws
   screw_diameter: screw_radius * 2
-  spacer_radius: 2.15 # M2 standoffs
+  spacer_radius: 3 # M2 standoffs
   spacer_diameter: spacer_radius * 2
   fillet_radius: 0.5
   pwr_trace_width: 0.25
@@ -50,13 +52,13 @@ units:
   # Thumb splay
   splay_thumb_middle: 15
   splay_thumb_far: 15
-  angle: -15
+  angle: -18
 points:
   zones:
     matrix:
       key:
-        padding: kp
-        spread: ks
+        padding: ky
+        spread: kx
         tags: 
           - key
           - matrix_key
@@ -121,34 +123,34 @@ points:
         - screw
       anchor:
         - ref: [matrix_ring_top]
-          shift: [0kx, -0.4ky]
+          shift: [0, -6.25]
     screw_pcb_outer_bottom:
       key.tags:
         - helper
         - screw
       anchor:
         - ref: [matrix_pinky_bottom]
-          shift: [0.5kx, -0.25ky]
+          shift: [9, -3]
     screw_pcb_inner_top:
       key.tags:
         - helper
         - screw
       anchor:
         - ref: [matrix_inner_top]
-          shift: [0kx, -0.4ky]
+          shift: [0, -6.25]
     screw_pcb_inner_bottom:
       key.tags:
         - helper
         - screw
       anchor:
         - ref: [thumb_index_extra]
-          shift: [0.5kx, 0.5ky]
+          shift: [10, 10]
 
   rotate: angle
   mirror: &mirror
     ref: matrix_inner_top
     shift: [0.5kx, 0.5ky]
-    distance: 21
+    distance: 25
 outlines:
   _pcb:
     - what: polygon
@@ -206,11 +208,24 @@ outlines:
           shift: [2.2ks, -0.5kp]
       fillet: 3
 
-  _case_edge:
+  _case_inner_edge:
     - what: outline
       name: _pcb
-      expand: 3
-      fillet: 3
+      expand: .5
+      fillet: .5
+  _case_outer_edge:
+    - what: outline
+      name: _pcb
+      expand: 2.1
+      fillet: 2.1
+  _battery_cutout:
+    - what: rectangle
+      size: [28, 22]
+      adjust:
+        aggregate.parts:
+          - ref: matrix_inner_bottom
+          - ref: mirror_matrix_inner_bottom
+        shift: [0, -6]
   _keycap_outlines:
     - what: rectangle
       fillet: 2
@@ -224,6 +239,40 @@ outlines:
     - what: rectangle
       where: /key/
       size: [kcow, kcoh]
+  _bat_sw_safezone_out:
+    - what: rectangle
+      adjust:
+        aggregate.parts:
+          - ref: matrix_inner_top
+          - ref: mirror_matrix_inner_top
+        shift: [-25.5, 11.9]
+        rotate: 146.9
+      size: [8, 10]
+  _pcm_12_cutout:
+    - what: rectangle
+      size: [1.8, 6]
+      adjust:
+        aggregate.parts:
+          - ref: matrix_inner_top
+          - ref: mirror_matrix_inner_top
+        shift: [-17, -11.75]
+  _reset_cutout:
+    - what: circle 
+      radius: 0.75
+      adjust:
+        aggregate.parts:
+          - ref: matrix_inner_top
+          - ref: mirror_matrix_inner_top
+        shift: [6, -20]
+  _mcu_safezone_out:
+    - what: rectangle
+      adjust:
+        aggregate.parts:
+          - ref: matrix_inner_top
+          - ref: mirror_matrix_inner_top
+        shift: [0, 8]
+        rotate: 0
+      size: [14, 5]
   _screws:
     - what: circle
       where: /screw_pcb/
@@ -235,16 +284,15 @@ outlines:
   _plate_outline:
     - what: outline
       name: _pcb
-      fillet: fillet_radius
+      # fillet: fillet_radius
     - what: outline
       name: _switch_cutouts
       operation: subtract
   plate:
-    - what: outline
-      name: _plate_outline
-    - what: outline
-      name: _screws
-      operation: subtract
+    - _plate_outline
+  board:
+    - _pcb
+    - -_battery_cutout
   preview:
     - _pcb
     - ^_keycap_outlines
@@ -252,9 +300,15 @@ pcbs:
   smcboard_mono:
     outlines:
       pcb:
-        outline: _pcb
+        outline: board
       keycaps:
         outline: _keycap_outlines 
+        layer: Eco1.User
+      power_slider:
+        outline: _pcm_12_cutout 
+        layer: Eco1.User
+      reset_cutout:
+        outline: _reset_cutout 
         layer: Eco1.User
       # NiceNanoV2
     footprints:
@@ -264,10 +318,16 @@ pcbs:
           aggregate.parts:
             - ref: matrix_inner_top
             - ref: mirror_matrix_inner_top
-          shift: [0, -4]
+          shift: [0, -4.45]
           rotate: 0
         params:
           side: 'B'
+          P0: R0
+          P1: R1
+          P2: R2
+          P3: R3
+          P4: C5
+          P5: C6
       # io expander
       ioexp:
         what: mcp23s08_ssop
@@ -288,6 +348,14 @@ pcbs:
           CS: P7
           VSS: GND
           VDD: VCC
+          GP0: C7
+          GP1: C8
+          GP2: C9
+          GP3: C0
+          GP4: C1
+          GP5: C2
+          GP6: C3
+          GP7: C4
       # Reset Button
       reset:
         what: b3u1000p
@@ -296,7 +364,7 @@ pcbs:
             - ref: matrix_inner_top
             - ref: mirror_matrix_inner_top
           shift: [6, -20]
-          rotate: 90
+          rotate: -90
         params:
           r1: RST
           r2: GND
@@ -307,8 +375,8 @@ pcbs:
           aggregate.parts:
             - ref: matrix_inner_top
             - ref: mirror_matrix_inner_top
-          shift: [-16.4, 8.6]
-          rotate: 149.2
+          shift: [-14.5, -11.75]
+          rotate: -90 
         params:
           reverse: false
           flip: true
@@ -327,20 +395,21 @@ pcbs:
           shift: [-10, -17]
           rotate: 90
       # Switch FP
-      key_switches:
+      switches:
         what: *switch_footprint
-        where: /key/
+        where: /key/ 
         params:
           reverse: false
           hotswap: true
-          from: "{{column_net}}"
-          to: "{{colrow}}"
+          from: "{{colrow}}"
+          to: "{{col_net}}"
           # The following parameters are specific to choc_v2_hotswap
           # outer_pad_width_front: 1.6
           # outer_pad_width_back: 1.6
         adjust:
           rotate: switch_rotation
-      diodes_b:
+          resist: true
+      diodes:
         what: combo_diode
         where: /key/
         params:
@@ -352,57 +421,81 @@ pcbs:
         adjust:
           shift: [horizontal_diode_shift,vertical_diode_shift]
           rotate: 90 + diode_rotation
+          resist: true
+      diode_via:
+        what: via 
+        where: /key/
+        params:
+          net: "{{row_net}}"
+        adjust:
+          shift: [horizontal_diode_via_shift,vertical_diode_via_shift]
       # Mounting Holes
       holeLTL:
         what: mountingholestandoff
         adjust:
           ref: [matrix_ring_top]
-          shift: [0kx, -0.4ky]
+          shift: [0, -6.25]
       holeLBL:
         what: mountingholestandoff
         adjust:
           ref: [matrix_pinky_bottom]
-          shift: [0.5kx, -0.25ky]
+          shift: [9, -3]
       holeLTR:
         what: mountingholestandoff
         adjust:
           ref: [matrix_inner_top]
-          shift: [0kx, -0.4ky]
+          shift: [0, -6.25]
       holeLBR:
         what: mountingholestandoff
         adjust:
           ref: [thumb_index_extra]
-          shift: [0.5kx, 0.5ky]
+          shift: [10, 10]
       holeRTL:
         what: mountingholestandoff
         adjust:
           ref: [mirror_matrix_ring_top]
-          shift: [0kx, -0.4ky]
+          shift: [0, -6.25]
       holeRBL:
         what: mountingholestandoff
         adjust:
           ref: [mirror_matrix_pinky_bottom]
-          shift: [0.5kx, -0.25ky]
+          shift: [9, -3]
       holeRTR:
         what: mountingholestandoff
         adjust:
           ref: [mirror_matrix_inner_top]
-          shift: [0kx, -0.4ky]
+          shift: [0, -6.25]
       holeRBR:
         what: mountingholestandoff
         adjust:
           ref: [mirror_thumb_index_extra]
-          shift: [0.5kx, 0.5ky]
+          shift: [10, 10]
 cases:
   bottom:
-    - name: _case_edge
-      extrude: 2
+    # - name: _pcb
+    #   extrude: 3
+    - name: _case_outer_edge
+      extrude: 3
+  _screw_holes:
+    - name: _screws
+      extrude: 8
+  _screw_clearance:
+    - name: _spacers
+      extrude: 1.5
   _outerWall:
-    - name: _case_edge
-      extrude: 4
+    - name: _case_outer_edge
+      extrude: 8.7
   _innerWall:
-    - name: _pcb
-      extrude: 4
+    - name: _case_inner_edge
+      extrude: 8.7
+  _bat_sw_safezone:
+    - name: _bat_sw_safezone_out
+      extrude: 3
+      shift: [0,0,4]
+  _mcu_safezone:
+    - name: _mcu_safezone_out
+      extrude: 7
+      shift: [0,0,0.85]
   wall:
     - what: case
       name: _outerWall
@@ -410,6 +503,9 @@ cases:
     - what: case
       name: _innerWall
       operation: subtract
+  plate:
+    - name: _plate_outline
+      extrude: 1.4
   case:
     - what: case
       name: bottom
@@ -417,3 +513,15 @@ cases:
     - what: case
       name: wall
       operation: add
+    - what: case
+      name: _screw_clearance
+      operation: subtract
+    - what: case
+      name: _screw_holes
+      operation: subtract
+    - what: case
+      name: _mcu_safezone
+      operation: subtract
+    - what: case
+      name: _bat_sw_safezone
+      operaton: subtract
